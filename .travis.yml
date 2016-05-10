@@ -42,6 +42,7 @@ script:
     # - export ORWELL_DISABLE_TEST_BROADCAST=1
     - cmake ..
     - ifconfig
+    - netstat -g
     - ctest -V
     - cd ..
     - if [ "$CXX" = "g++-4.8" ] ; then cd .. && mkdir -p build_coverage && cd build_coverage ; fi
