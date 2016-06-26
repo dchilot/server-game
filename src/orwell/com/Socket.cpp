@@ -61,8 +61,8 @@ bool Socket::receiveString(
 	bool const aReceived = m_zmqSocket->recv(&aZmqMessage, aFlags);
 	if (aReceived)
 	{
-		ORWELL_LOG_TRACE("message received");
 		oMessage = string(static_cast<char*>(aZmqMessage.data()), aZmqMessage.size());
+		ORWELL_LOG_TRACE("message received '" << oMessage << "'");
 	}
 	return aReceived;
 }
@@ -124,7 +124,7 @@ void Socket::send(RawMessage const & iMessage)
 	aMessage += iMessage._payload;
 
 	sendString(aMessage);
-	ORWELL_LOG_DEBUG("Sent message of type " << iMessage._type << " to " << iMessage._routingId << " with size " << aMessage.size());
+	ORWELL_LOG_TRACE("Sent message of type " << iMessage._type << " to " << iMessage._routingId << " with size " << aMessage.size());
 }
 
 std::string const & Socket::getUrl() const

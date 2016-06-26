@@ -42,7 +42,7 @@ void ProcessHello::execute()
 	std::string const & aClientID = getArgument("RoutingID");
     
 	string aNewPlayerName = anHelloMsg.name();
-	bool const aPlayerAddedSuccess = m_game->addPlayer( aNewPlayerName );
+	bool const aPlayerAddedSuccess = m_game->addPlayer(aNewPlayerName);
 	bool aFailure = not aPlayerAddedSuccess;
 	if (aPlayerAddedSuccess)
 	{
