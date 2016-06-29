@@ -13,7 +13,7 @@ include(CTest)
 # It is used by YCM (https://github.com/Valloric/YouCompleteMe).
 # You just need to create a symbolic link to the build directory's compile_commands.json file
 # to the root of the project to have completion.
-set(CMAKE_EXPORT_COMPILE_COMMANDS, "ON")
+set(CMAKE_EXPORT_COMPILE_COMMANDS, 1)
 
 set_property(GLOBAL PROPERTY P_ALL_TARGETS "")
 set_property(GLOBAL PROPERTY P_ALL_TEST_TARGETS "")
@@ -182,6 +182,7 @@ ENDIF()
 
 SET(DART_TESTING_TIMEOUT "10")
 SET(MEMORYCHECK_COMMAND_OPTIONS "--leak-check=full --show-reachable=yes")
+SET($ENV{CTEST_OUTPUT_ON_FAILURE} 1)
 
 # this might be a hack but it works
 CONFIGURE_FILE(
