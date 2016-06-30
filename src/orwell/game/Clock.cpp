@@ -7,76 +7,28 @@ namespace orwell
 namespace game
 {
 
-Clock::Clock(boost::posix_time::time_duration const & iDuration)
-	: m_duration(iDuration)
-	, m_isRunning(false)
-{
-}
+mock::clock::time_point mock::clock::fake_now = ::std::chrono::steady_clock::now();
+bool mock::clock::auto_increment = false;
+mock::clock::duration mock::clock::auto_increment_value = mock::clock::duration(0);
 
-Clock::~Clock()
+mock::clock::time_point mock::clock::now()
 {
-}
-
-bool Clock::getIsRunning() const
-{
-	return m_isRunning;
-}
-
-uint64_t Clock::getSecondsLeft() const
-{
-	return (m_isRunning)
-		? m_duration.total_seconds() + (m_startTime - m_time).total_seconds()
-		: m_duration.total_seconds();
-}
-
-void Clock::start()
-{
-	if (m_isRunning)
+	if (auto_increment)
 	{
-		return;
+		fake_now += auto_increment_value;
 	}
-	m_isRunning = true;
-	m_time = boost::posix_time::microsec_clock::local_time();
-	m_startTime = m_time;
+	return fake_now;
 }
 
-void Clock::stop()
+void mock::clock::setAutoIncrement(duration const & iAutoIncrementValue)
 {
-	if (not m_isRunning)
-	{
-		return;
-	}
-	m_isRunning = false;
+	auto_increment = true;
+	auto_increment_value = iAutoIncrementValue;
 }
 
-void Clock::tickDelta(boost::posix_time::time_duration const & iTickDuration)
+void mock::clock::disableAutoIncrement()
 {
-	if (m_isRunning)
-	{
-		tickInternal(m_time + iTickDuration);
-	}
-}
-
-void Clock::tick()
-{
-	if (m_isRunning)
-	{
-		tickInternal(boost::posix_time::microsec_clock::local_time());
-	}
-}
-
-void Clock::tickInternal(boost::posix_time::ptime const & iNewTime)
-{
-	m_time = iNewTime;
-	checkReachedDuration();
-}
-
-void Clock::checkReachedDuration()
-{
-	if ((m_time - m_startTime) >= m_duration)
-	{
-		m_isRunning = false;
-	}
+	auto_increment = false;
 }
 
 } // game
