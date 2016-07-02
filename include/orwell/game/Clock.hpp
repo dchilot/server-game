@@ -22,6 +22,7 @@ struct mock
 
 		static void disableAutoIncrement();
 
+		static void forceNow(time_point const & iNewNow);
 	private :
 		static time_point s_fakeNow;
 		static bool s_autoIncrement;

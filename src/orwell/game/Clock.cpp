@@ -31,6 +31,11 @@ void mock::clock::disableAutoIncrement()
 	s_autoIncrement = false;
 }
 
+void mock::clock::forceNow(time_point const & iNewNow)
+{
+	s_fakeNow = iNewNow;
+}
+
 } // game
 } // orwell
 
