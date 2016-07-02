@@ -7,28 +7,28 @@ namespace orwell
 namespace game
 {
 
-mock::clock::time_point mock::clock::fake_now = ::std::chrono::steady_clock::now();
-bool mock::clock::auto_increment = false;
-mock::clock::duration mock::clock::auto_increment_value = mock::clock::duration(0);
+mock::clock::time_point mock::clock::s_fakeNow = ::std::chrono::steady_clock::now();
+bool mock::clock::s_autoIncrement = false;
+mock::clock::duration mock::clock::s_autoIncrementValue = mock::clock::duration(0);
 
 mock::clock::time_point mock::clock::now()
 {
-	if (auto_increment)
+	if (s_autoIncrement)
 	{
-		fake_now += auto_increment_value;
+		s_fakeNow += s_autoIncrementValue;
 	}
-	return fake_now;
+	return s_fakeNow;
 }
 
 void mock::clock::setAutoIncrement(duration const & iAutoIncrementValue)
 {
-	auto_increment = true;
-	auto_increment_value = iAutoIncrementValue;
+	s_autoIncrement = true;
+	s_autoIncrementValue = iAutoIncrementValue;
 }
 
 void mock::clock::disableAutoIncrement()
 {
-	auto_increment = false;
+	s_autoIncrement = false;
 }
 
 } // game

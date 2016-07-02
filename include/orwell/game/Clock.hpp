@@ -22,9 +22,10 @@ struct mock
 
 		static void disableAutoIncrement();
 
-		static time_point fake_now;
-		static bool auto_increment;
-		static duration auto_increment_value;
+	private :
+		static time_point s_fakeNow;
+		static bool s_autoIncrement;
+		static duration s_autoIncrementValue;
 	};
 };
 } // game
