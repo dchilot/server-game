@@ -14,7 +14,7 @@ namespace item
 Flag::Flag(
 		std::string const & iName,
 		std::set< std::string > const & iRfids,
-		boost::posix_time::milliseconds const & iTimeToCapture,
+		std::chrono::milliseconds const & iTimeToCapture,
 		uint32_t const iPointsOnCapture)
 	: Item(iName, iRfids, iTimeToCapture)
 	, m_pointsOnCapture(iPointsOnCapture)
@@ -24,7 +24,7 @@ Flag::Flag(
 Flag::Flag(
 		std::string const & iName,
 		int32_t const iColourCode,
-		boost::posix_time::milliseconds const & iTimeToCapture,
+		std::chrono::milliseconds const & iTimeToCapture,
 		uint32_t const iPointsOnCapture)
 	: Item(iName, iColourCode, iTimeToCapture)
 	, m_pointsOnCapture(iPointsOnCapture)

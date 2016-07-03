@@ -10,7 +10,7 @@
 #include "orwell/Application.hpp"
 #include "MissingFromTheStandard.hpp"
 
-#include <boost/date_time/posix_time/posix_time.hpp>
+#include <chrono>
 
 #include <unistd.h>
 
@@ -186,13 +186,13 @@ bool Common::ExpectMessage(
 {
 	ORWELL_LOG_DEBUG("GetWaitLoops for message of type " << iType << " for " << iTimeout);
 	bool aReceivedExpectedMessage(false);
-	boost::posix_time::time_duration aTrueTimeout = boost::posix_time::milliseconds(iTimeout);
-	boost::posix_time::time_duration aDuration;
-	boost::posix_time::ptime aCurrentTime;
-	boost::posix_time::ptime aStartTime = boost::posix_time::microsec_clock::local_time();
+	std::chrono::steady_clock::duration aTrueTimeout = std::chrono::milliseconds(iTimeout);
+	std::chrono::steady_clock::duration aDuration;
+	std::chrono::steady_clock::time_point aCurrentTime;
+	std::chrono::steady_clock::time_point aStartTime = std::chrono::steady_clock::now();
 	while (not aReceivedExpectedMessage and (aDuration < aTrueTimeout))
 	{
-		aCurrentTime = boost::posix_time::microsec_clock::local_time();
+		aCurrentTime = std::chrono::steady_clock::now();
 		aDuration = aCurrentTime - aStartTime;
 		bool aReceivedAnyMessage = iSubscriber.receive(oReceived);
 		if (not aReceivedAnyMessage or oReceived._type != iType)
@@ -214,7 +214,8 @@ bool Common::ExpectMessage(
 		if (aDuration >= aTrueTimeout)
 		{
 			ORWELL_LOG_DEBUG("Expected message not received ; timeout ("
-					<< aTrueTimeout << ") exceeded: " << aDuration);
+					<< aTrueTimeout.count()
+					<< ") exceeded: " << aDuration.count());
 		}
 	}
 	return aReceivedExpectedMessage;
@@ -265,15 +266,16 @@ void TestAgent::reset()
 
 TempFile::TempFile(std::string const & iContent)
 {
-	char aFileName[L_tmpnam];
-	tmpnam(aFileName);
-	FILE * aFile = fopen(aFileName, "w");
-	if (fputs(iContent.c_str(), aFile) < 0)
+	char aTempName [] = "test-file.XXXXXX";
+	int aFileDescriptor = mkstemp(aTempName);
+	if (-1 == aFileDescriptor)
 	{
 		std::cerr << "Temporary file not created properly." << std::endl;
+		abort();
 	}
-	fclose(aFile);
-	m_fileName = std::string(aFileName);
+	write(aFileDescriptor, iContent.c_str(), iContent.size());
+	close(aFileDescriptor);
+	m_fileName = std::string(aTempName);
 }
 
 TempFile::~TempFile()

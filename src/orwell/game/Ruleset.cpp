@@ -19,7 +19,7 @@ void Ruleset::parseConfig(
 	m_scoreToWin = iPtree.get< uint32_t >(iRulesetName + ".score_to_win", 0);
 	m_pointsOnCapture = iPtree.get< uint32_t >(iRulesetName + ".points_on_capture", 0);
 
-	m_timeToCapture = boost::posix_time::milliseconds(iPtree.get< uint32_t >(iRulesetName + ".time_to_capture", 0));
+	m_timeToCapture = std::chrono::milliseconds(iPtree.get< uint32_t >(iRulesetName + ".time_to_capture", 0));
 }
 
 }

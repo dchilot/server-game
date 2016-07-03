@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <boost/date_time/posix_time/posix_time.hpp>
+#include <chrono>
 
 #include "orwell/callbacks/ProcessDecider.hpp"
 
@@ -89,8 +89,8 @@ private:
 
 	std::map< std::string, std::shared_ptr< com::Socket > > m_serverCommandSockets;
 
-	boost::posix_time::time_duration const m_ticDuration;
-	boost::posix_time::ptime m_previousTic;
+	std::chrono::steady_clock::duration const m_ticDuration;
+	std::chrono::steady_clock::time_point m_previousTic;
 
 	bool m_mainLoopRunning;
 	bool m_forcedStop;

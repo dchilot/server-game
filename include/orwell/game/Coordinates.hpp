@@ -7,7 +7,6 @@
 #include <ostream>
 
 #include <boost/property_tree/ptree_fwd.hpp>
-#include <boost/date_time/posix_time/posix_time_types.hpp>
 
 namespace orwell
 {

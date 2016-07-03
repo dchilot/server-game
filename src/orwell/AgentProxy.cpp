@@ -8,6 +8,8 @@
 
 #include "orwell/support/GlobalLogger.hpp"
 
+#include <boost/lexical_cast.hpp>
+
 #include <sstream>
 #include <functional>
 

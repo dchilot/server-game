@@ -1,6 +1,6 @@
 #include "orwell/game/Contact.hpp"
 
-#include <boost/date_time/posix_time/posix_time.hpp>
+#include <chrono>
 
 #include "orwell/support/GlobalLogger.hpp"
 #include "orwell/game/Item.hpp"
@@ -13,8 +13,8 @@ namespace game
 {
 
 Contact::Contact(
-		boost::posix_time::ptime const & iStartTime,
-		boost::posix_time::time_duration const & iTimerDuration,
+		std::chrono::steady_clock::time_point const & iStartTime,
+		std::chrono::steady_clock::duration const & iTimerDuration,
 		std::shared_ptr<Robot> iRobot,
 		std::shared_ptr<Item> iItem)
 	: m_robot(iRobot)
@@ -28,7 +28,8 @@ Contact::~Contact()
 {
 }
 
-StepSignal Contact::step(boost::posix_time::ptime const & iCurrentTime)
+StepSignal Contact::step(
+		std::chrono::steady_clock::time_point const & iCurrentTime)
 {
 	StepSignal aResult = StepSignal::SILENCEIKILLU;
 	ORWELL_LOG_DEBUG("Step in a contact");

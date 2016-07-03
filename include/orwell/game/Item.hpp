@@ -6,7 +6,7 @@
 #include <memory>
 #include <ostream>
 
-#include <boost/date_time/posix_time/posix_time_types.hpp>
+#include <chrono>
 
 namespace orwell
 {
@@ -21,12 +21,12 @@ protected:
 	Item(
 			std::string const & iName,
 			std::set< std::string > const & iRfids,
-			boost::posix_time::milliseconds const & iTimeToCapture);
+			std::chrono::milliseconds const & iTimeToCapture);
 
 	Item(
 			std::string const & iName,
 			int32_t const iColourCode,
-			boost::posix_time::milliseconds const & iTimeToCapture);
+			std::chrono::milliseconds const & iTimeToCapture);
 
 	virtual ~Item();
 
@@ -59,7 +59,7 @@ private:
 	std::set< std::string > m_rfids;
 	int32_t m_colour;
 	std::string m_owningTeam;
-	boost::posix_time::milliseconds m_timeToCapture;
+	std::chrono::milliseconds m_timeToCapture;
 
 	static std::map<std::string, std::shared_ptr<Item> > s_itemsByRfid;
 	static std::map<int32_t, std::shared_ptr<Item> > s_itemsByColour;

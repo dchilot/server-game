@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 #include <boost/property_tree/ptree_fwd.hpp>
-#include <boost/date_time/posix_time/posix_time_types.hpp>
+#include <chrono>
 
 namespace orwell
 {
@@ -25,7 +25,7 @@ public :
 	std::string m_gameName;
 	uint32_t m_scoreToWin;
 	uint32_t m_pointsOnCapture;
-	boost::posix_time::milliseconds m_timeToCapture;
+	std::chrono::milliseconds m_timeToCapture;
 
 };
 } // game

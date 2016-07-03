@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 2.8.7)
 # Use our own modules along with the CMake's ones
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/modules/")
 
-project(orwell)
+project(orwell CXX C)
 
 # Test suite
 include(CTest)

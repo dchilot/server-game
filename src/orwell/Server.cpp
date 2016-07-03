@@ -63,10 +63,10 @@ Server::Server(
 				orwell::com::ConnectionMode::BIND,
 				m_zmqContext,
 				0))
-	, m_game(boost::posix_time::seconds(iGameDuration), iRuleset, *this)
+	, m_game(std::chrono::seconds(iGameDuration), iRuleset, *this)
 	, m_decider(m_game, m_publisher)
-	, m_ticDuration(boost::posix_time::milliseconds(iTicDuration))
-	, m_previousTic(boost::posix_time::microsec_clock::local_time())
+	, m_ticDuration(std::chrono::milliseconds(iTicDuration))
+	, m_previousTic(std::chrono::steady_clock::now())
 	, m_mainLoopRunning(false)
 	, m_forcedStop(false)
 {
@@ -92,13 +92,13 @@ bool Server::processMessageIfAvailable()
 void Server::loopUntilOneMessageIsProcessed()
 {
 	bool aMessageHasBeenProcessed = false;
-	boost::posix_time::time_duration aDuration;
-	boost::posix_time::ptime aCurrentTic;
+	std::chrono::steady_clock::duration aDuration;
+	std::chrono::steady_clock::time_point aCurrentTic;
 
 	feedAgentProxy();
 	while (not aMessageHasBeenProcessed)
 	{
-		aCurrentTic = boost::posix_time::microsec_clock::local_time();
+		aCurrentTic = std::chrono::steady_clock::now();
 		m_game.setTime(aCurrentTic);
 		aDuration = aCurrentTic - m_previousTic;
 		if (aDuration < m_ticDuration)
@@ -110,7 +110,7 @@ void Server::loopUntilOneMessageIsProcessed()
 			else
 			{
 				// sleep a fraction of ticduration
-				usleep(m_ticDuration.total_milliseconds() / 10);
+				usleep(m_ticDuration.count() / 10);
 			}
 		}
 		else if (m_forcedStop)

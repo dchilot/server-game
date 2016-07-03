@@ -35,7 +35,7 @@ namespace game
 {
 
 Game::Game(
-		boost::posix_time::time_duration const & iGameDuration,
+		std::chrono::steady_clock::duration const & iGameDuration,
 		Ruleset const & iRuleset,
 		Server & ioServer)
 	: m_isRunning(false)
@@ -43,7 +43,10 @@ Game::Game(
 	, m_server(ioServer)
 	, m_ruleset(iRuleset)
 {
-	ORWELL_LOG_DEBUG("Game duration: " << m_gameDuration.total_seconds() << " second(s).");
+	ORWELL_LOG_DEBUG(
+			"Game duration: "
+			<< m_gameDuration.count() * std::chrono::milliseconds::period::num / std::chrono::milliseconds::period::den
+			<< " second(s).");
 }
 
 Game::~Game()
@@ -117,12 +120,12 @@ uint64_t Game::getSecondsLeft() const
 {
 	if (m_isRunning)
 	{
-		boost::posix_time::time_duration aEllapsed = m_time - m_startTime;
-		return (m_gameDuration.total_seconds() - aEllapsed.total_seconds());
+		std::chrono::steady_clock::duration aEllapsed = m_time - m_startTime;
+		return (m_gameDuration - aEllapsed).count() * std::chrono::milliseconds::period::num / std::chrono::milliseconds::period::den;
 	}
 	else
 	{
-		return m_gameDuration.total_seconds();
+		return m_gameDuration.count() * std::chrono::milliseconds::period::num / std::chrono::milliseconds::period::den;
 	}
 }
 
@@ -140,8 +143,16 @@ void Game::start()
 				ORWELL_LOG_WARN("Robot " << aRobot->getName() << " has wrong connection parameters : url=" << aRobot->getVideoUrl());
 				continue;
 			}
-			char * aTempName = tmpnam(nullptr);
-			std::ofstream(aTempName).close();
+			char aTempName [] = "video-forward.pid.XXXXXX";
+			int aFileDescriptor = mkstemp(aTempName);
+			if (-1 == aFileDescriptor)
+			{
+				ORWELL_LOG_ERROR("Unable to create temporary file (" << aTempName << ") for robot with id " << aPair.first);
+				m_isRunning = true;
+				stop();
+				abort();
+			}
+			close(aFileDescriptor);
 
 			aCommandLine << " cd server-web && make start ARGS='-u \"" <<
 				aRobot->getVideoUrl() <<
@@ -158,7 +169,7 @@ void Game::start()
 			m_server.addServerCommandSocket(aRobot->getRobotId(), aRobot->getServerCommandPort());
 		}
 		ORWELL_LOG_INFO("game starts");
-		m_startTime = boost::posix_time::microsec_clock::local_time();
+		m_startTime = std::chrono::steady_clock::now();
 		m_isRunning = true;
 	}
 }
@@ -393,7 +404,7 @@ void Game::fillGameStateMessage(messages::GameState & oGameState)
 	//todo
 }
 
-void Game::setTime(boost::posix_time::ptime const & iCurrentTime)
+void Game::setTime(std::chrono::steady_clock::time_point const & iCurrentTime)
 {
 	m_time = iCurrentTime;
 }

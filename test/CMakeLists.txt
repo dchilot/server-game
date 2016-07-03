@@ -18,6 +18,9 @@ find_package(LOG4CXX_LIBRARIES REQUIRED)
 
 find_package(GMock REQUIRED)
 find_package(GTest REQUIRED)
+# Threads is a GTest dependency
+set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+find_package(Threads REQUIRED)
 
 include_directories(
 	${CMAKE_SOURCE_DIR}/include
@@ -36,7 +39,8 @@ target_link_libraries(
 	${GTEST_LIBRARIES}
 	${Boost_LIBRARIES}
 	${LOG4CXX_LIBRARIES}
-	${OpenCV_LIBS})
+	${OpenCV_LIBS}
+	${CMAKE_THREAD_LIBS_INIT})
 
 #add_executable(test_registerRobot "register_robot.cpp")
 #target_link_libraries(test_registerRobot orwell_com orwell_tasks)
@@ -88,6 +92,7 @@ add_orwell_test(test_capture_one_flag "test_capture_one_flag.cpp")
 add_orwell_test(test_capture_multiflag "test_capture_multiflag.cpp")
 add_orwell_test(test_stop_after_game_duration "test_stop_after_game_duration.cpp")
 add_orwell_test(test_orwell_game_Clock "test_orwell_game_Clock.cpp")
+add_orwell_test(test_orwell_unittests "test_orwell_unittests.cpp")
 add_dependencies(test_main server_main)
 add_dependencies(test_main_plus server_main)
 foreach(image ${IMAGES})

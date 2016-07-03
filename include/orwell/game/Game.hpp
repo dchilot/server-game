@@ -4,7 +4,7 @@
 #include <set>
 #include <memory>
 
-#include <boost/date_time/posix_time/posix_time.hpp>
+#include <chrono>
 #include <boost/optional.hpp>
 
 #include "orwell/game/Player.hpp"
@@ -32,7 +32,7 @@ class Game
 {
 public:
 	Game(
-			boost::posix_time::time_duration const & iGameDuration,
+			std::chrono::steady_clock::duration const & iGameDuration,
 			Ruleset const & iRuleset,
 			Server & ioServer);
 	~Game();
@@ -138,7 +138,7 @@ public:
 			std::string const & iRobotId,
 			std::shared_ptr<Item> const iItem);
 
-	void setTime(boost::posix_time::ptime const & iCurrentTime);
+	void setTime(std::chrono::steady_clock::time_point const & iCurrentTime);
 
 	void stopIfGameIsFinished();
 
@@ -171,9 +171,9 @@ private:
 	mutable std::map< std::string, std::string > m_registeredRobots;
 	/// stores the temp files containing the pids of the webservers, to kill them later
 	std::vector<std::string> m_tmpFiles;
-	boost::posix_time::ptime m_time;
-	boost::posix_time::ptime m_startTime;
-	boost::posix_time::time_duration m_gameDuration;
+	std::chrono::steady_clock::time_point m_time;
+	std::chrono::steady_clock::time_point m_startTime;
+	std::chrono::steady_clock::duration m_gameDuration;
 
 	//Contacts between robots and flags. The key is the robotId
 	std::map<std::string, std::unique_ptr<Contact> > m_contacts;

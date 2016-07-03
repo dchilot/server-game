@@ -1,10 +1,6 @@
 #pragma once
 
-namespace boost {
-namespace posix_time {
-class ptime;
-}
-}
+#include <chrono>
 
 namespace orwell
 {
@@ -20,7 +16,8 @@ enum class StepSignal
 class TimeBound
 {
 public:
-	virtual StepSignal step(boost::posix_time::ptime const & iCurrentTime) = 0;
+	virtual StepSignal step(
+			std::chrono::steady_clock::time_point const & iCurrentTime) = 0;
 
 protected :
 	TimeBound();
