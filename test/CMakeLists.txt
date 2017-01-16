@@ -16,13 +16,12 @@ find_package(ZMQ REQUIRED)
 
 find_package(LOG4CXX_LIBRARIES REQUIRED)
 
-find_package(GMock REQUIRED)
-find_package(GTest REQUIRED)
-
 include_directories(
 	${CMAKE_SOURCE_DIR}/include
 	${CMAKE_BINARY_DIR}/messages
 	${LOG4CXX_INCLUDE_DIR}
+	${CMAKE_SOURCE_DIR}/third_party/googletest/googletest/include
+	${CMAKE_SOURCE_DIR}/third_party/googletest/googlemock/include
 	)
 
 
@@ -31,16 +30,16 @@ add_library(orwell_test SHARED ${SOURCES})
 target_link_libraries(
 	orwell_test
 	orwell_server_game
+	gtest_main
+	gmock_main
 	${ZMQ_LIBRARIES}
 	${GMOCK_LIBRARIES}
 	${GTEST_LIBRARIES}
 	${Boost_LIBRARIES}
 	${LOG4CXX_LIBRARIES}
-	${OpenCV_LIBS})
+	${OpenCV_LIBS}
+	${CMAKE_THREAD_LIBS_INIT})
 
-#add_executable(test_registerRobot "register_robot.cpp")
-#target_link_libraries(test_registerRobot orwell_com orwell_tasks)
-#add_test(test_registerRobot ${CMAKE_CURRENT_BINARY_DIR}/test_registerRobot)
 
 include_directories(
 	${ZMQ_INCLUDE_DIRS}
@@ -72,7 +71,11 @@ ENDFUNCTION()
 add_orwell_test(test_input_to_robot "test_input_to_robot.cpp")
 add_orwell_test(test_hello "test_hello_client.cpp")
 add_orwell_test(test_application "test_application.cpp")
-add_orwell_test(test_broadcast "test_broadcast.cpp")
+# this is not nice, but used to disable the test when running with Travis CI.
+if (DEFINED ENV{ORWELL_DISABLE_TEST_BROADCAST})
+else()
+	add_orwell_test(test_broadcast "test_broadcast.cpp")
+endif()
 add_orwell_test(test_agent_proxy "test_agent_proxy.cpp")
 add_orwell_test(test_agent "test_agent.cpp")
 add_orwell_test(test_register_robot "test_register_robot.cpp")
@@ -82,6 +85,14 @@ add_orwell_test(test_main_plus "test_main_plus.cpp")
 add_orwell_test(test_opencv "test_opencv.cpp")
 add_orwell_test(test_capture_one_flag "test_capture_one_flag.cpp")
 add_orwell_test(test_capture_multiflag "test_capture_multiflag.cpp")
+add_orwell_test(test_stop_after_game_duration "test_stop_after_game_duration.cpp")
+add_orwell_test(test_orwell_game_Clock "test_orwell_game_Clock.cpp")
+add_orwell_test(test_orwell_game_Robot "test_orwell_game_Robot.cpp")
+add_orwell_test(test_orwell_game_Game "test_orwell_game_Game.cpp")
+add_orwell_test(test_orwell_game_Item "test_orwell_game_Item.cpp")
+add_orwell_test(test_orwell_game_item_Flag "test_orwell_game_item_Flag.cpp")
+add_orwell_test(test_orwell_game_item_FlagDetector "test_orwell_game_item_FlagDetector.cpp")
+add_orwell_test(test_orwell_game_ItemEncoder "test_orwell_game_ItemEncoder.cpp")
 add_dependencies(test_main server_main)
 add_dependencies(test_main_plus server_main)
 foreach(image ${IMAGES})

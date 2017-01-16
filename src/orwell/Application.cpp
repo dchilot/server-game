@@ -3,6 +3,7 @@
 #include "orwell/Server.hpp"
 #include "orwell/BroadcastServer.hpp"
 #include "orwell/support/GlobalLogger.hpp"
+#include "orwell/support/SystemProxy.hpp"
 #include "orwell/game/Item.hpp"
 
 #include <boost/algorithm/string.hpp>
@@ -29,12 +30,14 @@ namespace orwell
 
 Application & Application::GetInstance()
 {
-	static Application m_application;
+	static support::SystemProxy m_systemProxy;
+	static Application m_application(m_systemProxy);
 	return m_application;
 }
 
-Application::Application()
-	: m_server(nullptr)
+Application::Application(support::ISystemProxy const & iSystemProxy)
+	: m_systemProxy(iSystemProxy)
+	, m_server(nullptr)
 	, m_broadcastServer(nullptr)
 	, m_state(State::CREATED)
 	, m_agentProxy(*this)
@@ -370,12 +373,16 @@ void Application::ParseGameConfigFromFile(
 			std::string aItemRfid = aPtree.get<std::string>(iItem + ".rfid");
 			int32_t aItemColour = aPtree.get<int32_t>(iItem + ".colour");
 			ORWELL_LOG_INFO("Pushing item: " << aItemName << " (" << aItemType << ")");
-			ORWELL_LOG_INFO("rfid: " << aItemType);
+			ORWELL_LOG_INFO(" colour: " << aItemColour);
+			ORWELL_LOG_INFO(" rfid: '" << aItemRfid << "'");
 			std::set< std::string > aSetItemRfid;
-			boost::split(aSetItemRfid, aItemRfid, boost::is_any_of(" "));
-			for (std::string const & aStr : aSetItemRfid)
+			if (not aItemRfid.empty())
 			{
-				ORWELL_LOG_INFO("  - " << aStr);
+				boost::split(aSetItemRfid, aItemRfid, boost::is_any_of(" "));
+				for (std::string const & aStr : aSetItemRfid)
+				{
+					ORWELL_LOG_INFO("  - '" << aStr << "'");
+				}
 			}
 			ioParam.m_items[iItem] = Parameters::Item{aItemName, aItemType, aSetItemRfid, aItemColour};
 		}
@@ -446,7 +453,7 @@ bool Application::CheckParametersConsistency(Parameters const & iParam)
 			}
 			ORWELL_LOG_ERROR(
 					"Item " << aPair.first << " is badly configured. rfid="
-					<< aRfidString.substr(1) << ", colour=" << aItem.m_colour);
+					<< aRfidString << ", colour=" << aItem.m_colour);
 			return false;
 		}
 	}
@@ -584,6 +591,7 @@ void Application::initServer(Parameters const & iParam)
 	std::string aPullerAddress = "tcp://*:" + boost::lexical_cast<std::string>(*iParam.m_commandLineParameters.m_pullerPort);
 
 	m_server = new orwell::Server(
+			m_systemProxy,
 			m_agentProxy,
 			iParam.m_ruleset,
 			aAgentAddress,

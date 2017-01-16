@@ -23,14 +23,6 @@ before_install:
     - tar xzf lcov-1.10.tar.gz
     - cd lcov-1.10 && make && sudo make install
     - cd ..
-    - wget -nc --no-check-certificate https://googlemock.googlecode.com/files/gmock-1.7.0.zip
-    - unzip gmock-1.7.0.zip
-    - cd gmock-1.7.0
-    - cmake -DCMAKE_BUILD_TYPE=RELEASE
-    - make
-    - export GTEST_ROOT=$(pwd)/gtest/
-    - export GMOCK_ROOT=$(pwd)/
-    - cd ..
     - cd ..
 
 script:
@@ -39,7 +31,10 @@ script:
     - mkdir -p ./build
     - cd ./build && cmake .. && make && cd ./test
     - cd server-web ; make develop ; cd -
-    - ctest -V
+    - export ORWELL_DISABLE_TEST_BROADCAST=1
+    - cmake ..
+    - ifconfig
+    - ctest || ctest -V
     - cd ..
     - if [ "$CXX" = "g++-4.8" ] ; then cd .. && mkdir -p build_coverage && cd build_coverage ; fi
     - if [ "$CXX" = "g++-4.8" ] ; then cmake .. -DORWELL_COVERAGE=ON -DCMAKE_BUILD_TYPE=Debug ; fi

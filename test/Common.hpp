@@ -11,7 +11,10 @@
 #include <zmq.hpp>
 
 #include "orwell/IAgentProxy.hpp"
+#include "orwell/support/ISystemProxy.hpp"
 #include "orwell/com/Socket.hpp"
+#include "orwell/IServer.hpp"
+#include "orwell/game/IContactHandler.hpp"
 
 #include "gmock/gmock.h"
 
@@ -21,16 +24,41 @@
 #  define PATH_SEPARATOR "/"
 #endif
 
+#include "orwell/support/GlobalLogger.hpp"
+
+#define ORWELL_ASSERT(Expected, Received, Message) \
+{\
+	if (Expected != Received)\
+	{\
+		ORWELL_LOG_ERROR("expected: " << Expected);\
+		ORWELL_LOG_ERROR(Message);\
+		return;\
+	}\
+}\
+
+#define ORWELL_ASSERT_TRUE(Condition, Message) \
+{\
+	if (!Condition)\
+	{\
+		ORWELL_LOG_ERROR(Message);\
+		return;\
+	}\
+}\
+
 namespace orwell
 {
-class Application_CommandLineParameters;
+struct Application_CommandLineParameters;
 
 namespace com
 {
 class Receiver;
 class RawMessage;
 }
-}
+namespace game
+{
+class Item;
+} // namespace game
+} // namespace orwell
 
 enum class Status
 {
@@ -70,7 +98,7 @@ public:
 
 class FakeAgentProxy : public orwell::IAgentProxy
 {
-public :
+public:
 	MOCK_METHOD2(step, bool(
 				std::string const & iCommand,
 				std::string & ioReply));
@@ -119,6 +147,11 @@ public :
 	MOCK_METHOD0(startGame, void());
 
 	MOCK_METHOD0(stopGame, void());
+
+	MOCK_METHOD2(getGame, void(
+			std::string const & iProperty,
+			std::string & oValue));
+
 };
 
 struct TempFile
@@ -146,7 +179,47 @@ private:
 	orwell::com::Socket m_agentSocket;
 };
 
+
+class FakeSystemProxy : public orwell::support::ISystemProxy
+{
+public:
+	MOCK_CONST_METHOD1(mkstemp, int(char * ioTemplate));
+
+	MOCK_CONST_METHOD1(close, int(int const iFileDescriptor));
+
+	MOCK_CONST_METHOD1(system, int(char const * iCommand));
+};
+
+class FakeServer: public orwell::IServer
+{
+public:
+	MOCK_METHOD0(processMessageIfAvailable, bool());
+
+	MOCK_METHOD0(loopUntilOneMessageIsProcessed, void());
+
+	/// Loop eternaly to process all incoming messages.
+	MOCK_METHOD0(loop, void());
+
+	/// Correctly stop the server
+	MOCK_METHOD0(stop, void());
+
+	MOCK_METHOD0(accessContext, orwell::game::Game & ());
+
+	MOCK_METHOD0(feedAgentProxy, void());
+};
+
+class FakeContactHandler : public orwell::game::IContactHandler
+{
+public:
+	MOCK_METHOD2(robotIsInContactWith, void(
+		std::string const & iRobotId,
+		std::shared_ptr< orwell::game::Item > const iItem));
+
+	MOCK_METHOD2(robotDropsContactWith, void(
+		std::string const & iRobotId,
+		std::shared_ptr< orwell::game::Item > const iItem));
+};
+
 std::ostream & operator<<(
 		std::ostream & ioOstream,
 		Arguments const & iArguments);
-

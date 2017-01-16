@@ -36,6 +36,7 @@ namespace orwell
 {
 
 Server::Server(
+		support::ISystemProxy const & iSystemProxy,
 		orwell::IAgentProxy & ioAgentProxy,
 		game::Ruleset const & iRuleset,
 		std::string const & iAgentUrl,
@@ -63,9 +64,9 @@ Server::Server(
 				orwell::com::ConnectionMode::BIND,
 				m_zmqContext,
 				0))
-	, m_game(boost::posix_time::milliseconds(iGameDuration), iRuleset, *this)
+	, m_game(iSystemProxy, boost::posix_time::seconds(iGameDuration), iRuleset, *this)
 	, m_decider(m_game, m_publisher)
-	, m_ticDuration( boost::posix_time::milliseconds(iTicDuration) )
+	, m_ticDuration(boost::posix_time::milliseconds(iTicDuration))
 	, m_previousTic(boost::posix_time::microsec_clock::local_time())
 	, m_mainLoopRunning(false)
 	, m_forcedStop(false)
@@ -101,7 +102,7 @@ void Server::loopUntilOneMessageIsProcessed()
 		aCurrentTic = boost::posix_time::microsec_clock::local_time();
 		m_game.setTime(aCurrentTic);
 		aDuration = aCurrentTic - m_previousTic;
-		if ( aDuration < m_ticDuration )
+		if (aDuration < m_ticDuration)
 		{
 			if (processMessageIfAvailable())
 			{
@@ -167,55 +168,4 @@ void Server::feedAgentProxy()
 		m_agentSocket->sendString(aReply);
 	}
 }
-
-void Server::push(
-		std::string const & iUrl,
-		std::string const & iMessage)
-{
-	orwell::com::Sender aPusher(
-			iUrl,
-			ZMQ_PUSH,
-			orwell::com::ConnectionMode::CONNECT,
-			m_zmqContext);
-	aPusher.sendString(iMessage);
 }
-
-
-void Server::addServerCommandSocket(
-		std::string const & iAssociatedRobotId,
-		uint16_t const iPort)
-{
-	ORWELL_LOG_DEBUG("addServerCommandSocket(" <<
-			"robotID=" << iAssociatedRobotId <<
-			", port=" << iPort << ")");
-	m_serverCommandSockets[iAssociatedRobotId] = std::make_shared< orwell::com::Socket >(
-			"tcp://localhost:" + boost::lexical_cast<std::string>(iPort),
-			ZMQ_REQ,
-			orwell::com::ConnectionMode::CONNECT,
-			m_zmqContext,
-			0);
-}
-
-void Server::sendServerCommand(
-		std::string const & iRobotId,
-		std::string const & iCommand)
-{
-	ORWELL_LOG_DEBUG("sendServerCommand(" <<
-			"robotID=" << iRobotId <<
-			", command=" << iCommand << ")");
-	auto aFound = m_serverCommandSockets.find(iRobotId);
-	if (m_serverCommandSockets.end() != aFound)
-	{
-		aFound->second->sendString(iCommand);
-	}
-}
-
-bool Server::receiveCommandResponse(
-		std::string const & iRobotId,
-		std::string & oMessage)
-{
-	return m_serverCommandSockets[iRobotId]->receiveString(oMessage, false);
-}
-
-}
-
