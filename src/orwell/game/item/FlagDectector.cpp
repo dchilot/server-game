@@ -74,13 +74,7 @@ std::weak_ptr< orwell::game::Item > FlagDetector::setColour(
 				}
 				else
 				{
-					ORWELL_LOG_WARN("Inconsistent colour transition, force UNKNOWN_FROM_FRONTIER -> OUTSIDE");
-					m_state = States::OUTSIDE;
-					if (not m_lastItem.expired())
-					{
-						m_lastItem.reset();
-						m_contactHandler.robotDropsContactWith(m_robot->getRobotId(), aItem);
-					}
+					ORWELL_LOG_WARN("Inconsistent colour transition, force UNKNOWN_FROM_FRONTIER");
 				}
 			}
 			break;
@@ -92,10 +86,7 @@ std::weak_ptr< orwell::game::Item > FlagDetector::setColour(
 			{
 				if (not m_lastItem.expired())
 				{
-					ORWELL_LOG_WARN("Inconsistent colour transition, force INSIDE -> OUTSIDE");
-					m_state = States::OUTSIDE;
-					m_lastItem.reset();
-					m_contactHandler.robotDropsContactWith(m_robot->getRobotId(), aItem);
+					ORWELL_LOG_WARN("Inconsistent colour transition, force INSIDE");
 				}
 			}
 			else
@@ -116,10 +107,7 @@ std::weak_ptr< orwell::game::Item > FlagDetector::setColour(
 				}
 				else
 				{
-					ORWELL_LOG_WARN("Inconsistent colour transition, force TRANSITION_FROM_INSIDE -> OUTSIDE");
-					m_state = States::OUTSIDE;
-					m_lastItem.reset();
-					m_contactHandler.robotDropsContactWith(m_robot->getRobotId(), aItem);
+					ORWELL_LOG_WARN("Inconsistent colour transition, force TRANSITION_FROM_INSIDE");
 				}
 			}
 			else
@@ -130,13 +118,7 @@ std::weak_ptr< orwell::game::Item > FlagDetector::setColour(
 				}
 				else
 				{
-					ORWELL_LOG_WARN("Inconsistent colour transition, force UNKNOWN_FROM_FRONTIER -> OUTSIDE");
-					m_state = States::OUTSIDE;
-					if (not m_lastItem.expired())
-					{
-						m_lastItem.reset();
-					}
-					m_contactHandler.robotDropsContactWith(m_robot->getRobotId(), aItem);
+					ORWELL_LOG_WARN("Inconsistent colour transition, force UNKNOWN_FROM_FRONTIER");
 				}
 			}
 			break;
