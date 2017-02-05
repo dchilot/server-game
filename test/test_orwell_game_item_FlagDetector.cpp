@@ -90,15 +90,19 @@ TEST_F(TestOrwellGameItemFlagDetector, Frontier_Colour_Frontier_Outside)
 {
 	EXPECT_CALL(m_contactHandler, robotIsInContactWith(_, _)).Times(1);
 	EXPECT_CALL(m_contactHandler, robotDropsContactWith(_, _)).Times(1);
+	ORWELL_LOG_DEBUG("Send kFrontierColourCode");
 	m_flagDetector.setColour(
 			orwell::game::item::FlagDetector::kFrontierColourCode,
 			boost::posix_time::microsec_clock::local_time());
+	ORWELL_LOG_DEBUG("Send " << m_colourCode);
 	m_flagDetector.setColour(
 			m_colourCode,
 			boost::posix_time::microsec_clock::local_time());
+	ORWELL_LOG_DEBUG("Send kFrontierColourCode");
 	m_flagDetector.setColour(
 			orwell::game::item::FlagDetector::kFrontierColourCode,
 			boost::posix_time::microsec_clock::local_time());
+	ORWELL_LOG_DEBUG("Send kNoneColourCode");
 	m_flagDetector.setColour(
 			orwell::game::item::FlagDetector::kNoneColourCode,
 			boost::posix_time::microsec_clock::local_time());
