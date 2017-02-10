@@ -190,27 +190,7 @@ void Robot::startVideo()
 	}
 	else
 	{
-		std::stringstream aCommandLine;
-		char aTempName [] = "/tmp/video-forward.pid.XXXXXX";
-		int aFileDescriptor = m_systemProxy.mkstemp(aTempName);
-		if (-1 == aFileDescriptor)
-		{
-			ORWELL_LOG_ERROR("Unable to create temporary file (" << aTempName << ") for robot with id " << m_robotId);
-			throw std::system_error(std::error_code(1, std::system_category()));
-		}
-		m_systemProxy.close(aFileDescriptor);
-
-		aCommandLine << " cd server-web && make start ARGS='-u \"" <<
-			m_videoUrl <<
-			"\" -p " << m_videoRetransmissionPort <<
-			" -l " <<  m_serverCommandPort <<
-			" --pid-file " << aTempName << "'";
-		ORWELL_LOG_INFO("new tmp file : " << aTempName);
-		ORWELL_LOG_DEBUG("command line : " << aCommandLine.str());
-		int aCode = m_systemProxy.system(aCommandLine.str().c_str());
-		ORWELL_LOG_INFO("code at creation of webserver: " << aCode);
-
-		m_tempFile = aTempName;
+		ORWELL_LOG_INFO("Do not know what to do for anything else than url starting with nc:");
 	}
 }
 
