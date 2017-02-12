@@ -71,11 +71,24 @@ std::weak_ptr< orwell::game::Item > FlagDetector::setColour(
 			{
 				m_colourCode = iColourCode;
 				auto aLastItem = m_lastItem.lock();
-				if ((aLastItem) and (aItem.get() == aLastItem.get()))
+				if (aLastItem)
 				{
-					m_state = States::INSIDE;
-					ORWELL_LOG_DEBUG(" -> INSIDE");
+					if ((aItem.get() == aLastItem.get()))
+					{
+					}
+					else
+					{
+						ORWELL_LOG_WARN("Finding a different item from the frontier ?");
+					}
 				}
+				else
+				{
+					m_lastItem = aItem;
+					aItemChanged = true;
+					m_contactHandler.robotIsInContactWith(m_robot->getRobotId(), aItem);
+				}
+				m_state = States::INSIDE;
+				ORWELL_LOG_DEBUG(" -> INSIDE");
 			}
 			break;
 		}
