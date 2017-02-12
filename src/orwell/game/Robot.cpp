@@ -37,13 +37,6 @@ Robot::Robot(
 	, m_serverCommandPort(iServerCommandPort)
 	, m_hasRealRobot(false)
 	, m_zmqContext(1) // maybe this will have to be increased for each robot ?
-	, m_serverCommandSocket(
-		"tcp://localhost:" + boost::lexical_cast<std::string>(iServerCommandPort),
-		ZMQ_REQ,
-		orwell::com::ConnectionMode::CONNECT,
-		m_zmqContext,
-		0)
-	, m_pendingImage(false)
 {
 }
 
@@ -123,58 +116,14 @@ bool const Robot::getIsAvailable() const
 
 void Robot::fire()
 {
-	m_serverCommandSocket.sendString("capture");
-	m_pendingImage = true;
 }
 
 void Robot::stop()
 {
-	m_serverCommandSocket.sendString("stop");
-	if (not m_tempFile.empty())
-	{
-		// This is a bit of a hack to wait for the processes to write in the pid file
-		// (this only happens when exiting very quickly, like in tests)
-		size_t aSize;
-		while (true)
-		{
-			std::ifstream aInput(m_tempFile, std::ifstream::ate | std::ifstream::binary);
-			aSize = aInput.tellg();
-			ORWELL_LOG_DEBUG("pid file size = " << aSize);
-			if (aSize > 0)
-			{
-				break;
-			}
-			else
-			{
-				usleep(1000 * 50);
-			}
-		}
-		std::ifstream aFile(m_tempFile, std::ifstream::in | std::ifstream::binary);
-		int aPid = 0;
-		aFile >> aPid;
-		if (0 != aPid)
-		{
-			kill(aPid, SIGABRT);
-		}
-		else
-		{
-			ORWELL_LOG_ERROR("Could not kill a python web server ; from file " << m_tempFile);
-		}
-		m_tempFile.clear();
-	}
 }
 
 void Robot::readImage()
 {
-	if (m_pendingImage)
-	{
-		std::string aImage;
-		if (m_serverCommandSocket.receiveString(aImage, false))
-		{
-			ORWELL_LOG_INFO("Image received to be processed (FIRE1)");
-			m_pendingImage = false;
-		}
-	}
 }
 
 void Robot::startVideo()
