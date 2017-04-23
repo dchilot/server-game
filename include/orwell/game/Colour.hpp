@@ -10,6 +10,7 @@ enum class Colour
 	GREEN,
 	BLUE,
 	YELLOW,
+	ORANGE,
 	PURPLE,
 };
 }
